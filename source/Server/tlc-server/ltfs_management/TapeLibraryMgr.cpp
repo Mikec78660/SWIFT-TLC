@@ -3999,7 +3999,7 @@ bool
         }
 
         vector<string> list;
-        if(false == database_ || false == database_->GetTapeGroupList(list)){
+        if(nullptr == database_ || false == database_->GetTapeGroupList(list)){
             return false;
         }
 

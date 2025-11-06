@@ -1,0 +1,10 @@
+[Unit]
+Description=ValueStor Watchdog Timer
+Requires=watchdog.service
+
+[Timer]
+OnCalendar=minutely
+Persistent=true
+
+[Install]
+WantedBy=timers.target

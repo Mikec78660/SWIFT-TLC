@@ -1,0 +1,21 @@
+[Unit]
+Description=ValueStor Dirty Shutdown Detection Service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/bin/bash -c '
+    if [ -e /var/tmp/.selfFlag ]; then
+        echo "Dirty shutdown detected"
+        touch /var/tmp/.dirty_shutdown
+        exit 1
+    fi
+    touch /var/tmp/.selfFlag
+    exit 0
+'
+ExecStop=/bin/bash -c 'rm -f /var/tmp/.selfFlag'
+
+[Install]
+WantedBy=multi-user.target

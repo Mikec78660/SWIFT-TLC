@@ -88,9 +88,9 @@ TINY_XML_OBJECTS_SIMULATOR = $(patsubst %.cpp,simulator/%.o,$(TINY_XML_SOURCES))
 UTIILITY_SOURCES = $(shell echo utility/*.cpp)
 UTIILITY_OBJECTS_DEBUG = $(patsubst %.cpp,debug/%.o,$(UTIILITY_SOURCES))
 
-CPPFLAGS = -DWITH_OPENSSL -D_FILE_OFFSET_BITS=64 -DBOOST_REGEX_NO_EXTERNAL_TEMPLATES -Wall -Wno-unused-local-typedefs -I /root/log4cplus/include -I /root/mysql-connector/include -I /usr/include/python2.7
-LDFLAGS = -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lcrypto -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system  -lssl -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lmysqlcppconn -lfuse -lpython2.7
-LIC_LDFLAGS = -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lfuse 
+CPPFLAGS = -DWITH_OPENSSL -D_FILE_OFFSET_BITS=64 -DBOOST_REGEX_NO_EXTERNAL_TEMPLATES -DBOOST_TIMER_ENABLE_DEPRECATED -Wall -Wno-unused-local-typedefs -I /root/log4cplus/include -I /root/mysql-connector/include -I /usr/include/python3.13
+LDFLAGS = -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lcrypto -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system  -lssl -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lxmlrpc_util++ -lmysqlcppconn -lfuse -lpython3.13
+LIC_LDFLAGS = -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lxmlrpc_util++ -lfuse
 
 
 bdt-redirect: $(REDIRECT_OBJECTS_RELEASE) $(FUSE_OBJECTS_RELEASE)
@@ -213,4 +213,3 @@ clean:
 	rm -f $(TINY_XML_OBJECTS_RELEASE) $(TINY_XML_OBJECTS_DEBUG) $(TINY_XML_OBJECTS_SIMULATOR)
 	rm -f $(UTIILITY_OBJECTS_DEBUG)
 	rm -f bdt-* vfsclient* vfsserver* lfs_tool library_tool
-

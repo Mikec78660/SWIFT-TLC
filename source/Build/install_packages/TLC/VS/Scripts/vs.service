@@ -1,0 +1,35 @@
+[Unit]
+Description=ValueStor VFS Service
+After=network.target mariadb.service
+Requires=mariadb.service
+Before=umount.target
+
+[Service]
+Type=forking
+User=root
+Group=root
+ExecStartPre=/bin/bash -c 'if [ ! -f /etc/vs/vs_conf.xml ]; then echo "Configuration file /etc/vs/vs_conf.xml does not exist."; exit 6; fi'
+ExecStartPre=/bin/bash -c 'systemctl restart mariadb.service'
+ExecStartPre=/bin/bash -c 'modprobe fuse'
+ExecStartPre=/bin/bash -c 'modprobe lin_tape 2>/dev/null || true'
+ExecStartPre=/bin/bash -c 'export PATH=$PATH:/usr/local/bin/'
+ExecStart=/usr/VS/vfs/vfsserver /opt/VS/vsMounts /opt/VS/vsCache/meta /opt/VS/vsCache/diskCache -o allow_other,default_permissions
+ExecStop=/bin/bash -c 'if [ -f /var/run/vfsserver.pid ]; then kill -n TERM $(cat /var/run/vfsserver.pid) 2>/dev/null || true; fi'
+ExecStopPost=/bin/bash -c 'if [ -f /var/run/vfsserver.pid ]; then sleep 2; kill -9 $(cat /var/run/vfsserver.pid) 2>/dev/null || true; rm -f /var/run/vfsserver.pid; fi'
+PIDFile=/var/run/vfsserver.pid
+Restart=on-failure
+RestartSec=10
+
+# Watchdog management
+ExecStartPost=/bin/bash -c 'sed -i "s%^#\*/1 \* \* \* \* root sh /usr/VS/scripts/watchdog%*/1 * * * * root sh /usr/VS/scripts/watchdog%" /etc/crontab'
+ExecStopPost=/bin/bash -c 'sed -i "s%^.*/usr/VS/scripts/watchdog%#*/1 * * * * root sh /usr/VS/scripts/watchdog%" /etc/crontab'
+
+# Cache cleanup
+ExecStopPost=/bin/bash -c 'rm -rf /tmp/suds/* 2>/dev/null || true'
+ExecStopPost=/bin/bash -c 'rm -rf /tmp/.socket.vs.* 2>/dev/null || true'
+
+# Allow time for graceful shutdown
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target

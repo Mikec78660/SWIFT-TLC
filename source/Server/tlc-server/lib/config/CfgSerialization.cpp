@@ -45,7 +45,7 @@ namespace ltfs_config
 
 			root.put(tag, value);
 
-			boost::property_tree::xml_writer_settings<char> settings('\t', 1, "utf8");
+			boost::property_tree::xml_writer_settings<std::string> settings('\t', 1, "utf8");
 			write_xml(filename_,  root, std::locale(), settings);
 
 			return true;
@@ -71,7 +71,7 @@ namespace ltfs_config
 			boost::property_tree::ptree &pTree = root.get_child(parentNodeName);
 			pTree.erase(nodeName);
 
-			boost::property_tree::xml_writer_settings<char> settings('\t', 1, "utf8");
+			boost::property_tree::xml_writer_settings<std::string> settings('\t', 1, "utf8");
 			write_xml(filename_,  root, std::locale(), settings);
 			return true;
 		}

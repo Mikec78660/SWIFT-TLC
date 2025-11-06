@@ -5,7 +5,7 @@ GREEN="\e[0;32m"
 YELLOW="\e[0;33m"
 
 PKG_MAIN_VER="0"
-PKG_SUB_VER="9"
+PKG_SUB_VER="10"
 PKG_BUILD_NUM="10"
 pkgVer="${PKG_MAIN_VER}.${PKG_SUB_VER}.${PKG_BUILD_NUM}"
 CURRENT_PATH=`pwd`
@@ -800,46 +800,35 @@ function askQues()
 function chkonSrv()
 {
     if [ "$operation" = "install" ];then
-        if [ -e $LTFS_SOURCE_SCRIPTS/vs ];then
-            logMsg info "Copying startup script to /etc/init.d/." "/etc/init.d/"
-            \cp $LTFS_SOURCE_SCRIPTS/vs /etc/init.d/vs -arf
-	    \cp $LTFS_SOURCE_SCRIPTS/vs /etc/rc.d/init.d/vs -arf
-            chmod 744 /etc/init.d/vs
-	    chmod 744 /etc/rc.d/init.d/vs
-            chkconfig --add vs
-            chkconfig --level 35 vs on
-        else
-            logMsg fail "VStor service manage script doesn't exist" "VStor"
-        fi
+        # Install systemd service files
+        logMsg info "Installing systemd service files" "systemd"
+        \cp $LTFS_SOURCE_SCRIPTS/vs.service /etc/systemd/system/ -arf
+        \cp $LTFS_SOURCE_SCRIPTS/chkIsDirty.service /etc/systemd/system/ -arf
+        \cp $LTFS_SOURCE_SCRIPTS/watchdog.service /etc/systemd/system/ -arf
+        \cp $LTFS_SOURCE_SCRIPTS/watchdog.timer /etc/systemd/system/ -arf
+        
+        # Reload systemd and enable services
+        systemctl daemon-reload
+        systemctl enable vs.service
+        systemctl enable chkIsDirty.service
+        systemctl enable watchdog.service
+        systemctl enable watchdog.timer
+        
+        # Start services
+        systemctl start chkIsDirty.service
+        systemctl start watchdog.service
+        systemctl start watchdog.timer
+        
+        logMsg success "Systemd services installed and enabled successfully" "systemd"
     elif [ "$operation" = "upgrade" ];then
-        if [ -e /etc/init.d/vs ];then
-	    diff $LTFS_SOURCE_SCRIPTS/vs /etc/init.d/vs > /dev/null
-	    if [ $? -ne 0 ];then
-		logMsg info "Update vs service script" "vs"
-		\cp $LTFS_SOURCE_SCRIPTS/vs /etc/init.d/vs -ar
-		\cp $LTFS_SOURCE_SCRIPTS/vs /etc/rc.d/init.d/vs -ar
-	    else
-		logMsg info "No update for vs service script" "vs"
-	    fi
-	else
-	    logMsg warn "vs service script doesn't exist, will copy a new one"
-	    \cp $LTFS_SOURCE_SCRIPTS/vs /etc/init.d/vs -ar
-	    \cp $LTFS_SOURCE_SCRIPTS/vs /etc/rc.d/init.d/vs -ar
-	fi 
-    fi
-
-    if [ -e $LTFS_SOURCE_SCRIPTS/chkIsDirty ];then
-        logMsg info "Copying $LTFS_SOURCE_SCRIPTS/chkIsDirty to /etc/init.d"
-        \cp $LTFS_SOURCE_SCRIPTS/chkIsDirty /etc/init.d/chkIsDirty -arf
-        chmod 744 /etc/init.d/chkIsDirty
-        if [ "$operation" = "install" ];then
-            chkconfig --add chkIsDirty
-	    if [ $? -eq 0 ];then
-		/etc/init.d/chkIsDirty start
-	    fi
-        fi
-    else
-        logMsg faild "$LTFS_SOURCE_SCRIPTS/chkIsDirty doesn't exit"
+        logMsg info "Updating systemd service files" "systemd"
+        \cp $LTFS_SOURCE_SCRIPTS/vs.service /etc/systemd/system/ -ar
+        \cp $LTFS_SOURCE_SCRIPTS/chkIsDirty.service /etc/systemd/system/ -ar
+        \cp $LTFS_SOURCE_SCRIPTS/watchdog.service /etc/systemd/system/ -ar
+        \cp $LTFS_SOURCE_SCRIPTS/watchdog.timer /etc/systemd/system/ -ar
+        
+        systemctl daemon-reload
+        logMsg success "Systemd service files updated" "systemd"
     fi
 }
 
@@ -1098,9 +1087,9 @@ case "$1" in
             logMsg success "${YELLOW}CONGRATULATIONS!!${GREEN} The Fresh Installation has been completely done! Installed version: ${pkgVer}" "${pkgVer}"
 	    chkLibConnect
 	    if [ $LIB_CNT_STATE == 'YES' ];then
-	        logMsg info "Please check everything ready then start the VStor service with command: /etc/init.d/vs start" "/etc/init.d/vs start"
+	    logMsg info "Please check everything ready then start the VStor service with command: systemctl start vs.service" "systemctl start vs.service"
             elif [ $LIB_CNT_STATE == 'NO' ];then
-	        logMsg info "It seems that you don't have a Tape Library connected, please connect a tape libary then start the VStor service with command: /etc/init.d/vs start" "/etc/init.d/vs start"	
+	        logMsg info "It seems that you don't have a Tape Library connected, please connect a tape libary then start the VStor service with command: systemctl start vs.service" "systemctl start vs.service"	
 	    fi
 	fi   
     ;;
@@ -1127,9 +1116,9 @@ case "$1" in
             logMsg success "${YELLOW}CONGRATULATIONS!!${GREEN} The Upgrade Installation has been completely done! Installed version: ${pkgVer}" "${pkgVer}"
 	    chkLibConnect
             if [ $LIB_CNT_STATE == 'YES' ];then
-                logMsg info "Please check everything ready then start the VStor service with command: /etc/init.d/vs start" "/etc/init.d/vs start"
+                logMsg info "Please check everything ready then start the VStor service with command: systemctl start vs.service" "systemctl start vs.service"
             elif [ $LIB_CNT_STATE == 'NO' ];then
-                logMsg info "It seems that you don't have a Tape Library connected, please connect a tape libary then start the VStor service with command: /etc/init.d/vs start" "/etc/init.d/vs start"
+                logMsg info "It seems that you don't have a Tape Library connected, please connect a tape libary then start the VStor service with command: systemctl start vs.service" "systemctl start vs.service"
             fi
         fi
     ;;
@@ -1261,4 +1250,3 @@ case "$1" in
         exit 2
 esac
 exit $?
-

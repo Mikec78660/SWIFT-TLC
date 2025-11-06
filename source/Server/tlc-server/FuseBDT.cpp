@@ -21,7 +21,7 @@
 
 #include <dirent.h>
 #include "bdt/stdafx.h"
-#include <attr/xattr.h>
+#include <sys/xattr.h>
 #include "bdt/CacheManager.h"
 #include "bdt/ReadManager.h"
 #include "bdt/MetaManager.h"
@@ -479,7 +479,7 @@ int FuseBDT::setxattr (
                     }
                 } else {
                     if ( flags == XATTR_REPLACE ) {
-                        errno = ENOATTR;
+                        errno = ENODATA;
                         FuseReturnError(pathname);
                     }
                 }
@@ -887,4 +887,3 @@ FuseBDT::fgetattr(const char * pathname, struct stat * stbuf,
         FuseReturnError(pathname);
     }
 }
-
