@@ -72,9 +72,12 @@ int main(int argc, char *argv[])
                 << " does not exist" << endl;
         return 2;
     }
-    if ( ! fs::is_directory(folderTarget) ) {
+    // Use standard filesystem check instead of FUSE filesystem check
+    // to avoid transport endpoint error before FUSE mount is established
+    struct stat st;
+    if (stat(folderTarget.string().c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
         cerr << "$TargetFolder: " << target
-                << " does not exist" << endl;
+                << " does not exist or is not a directory" << endl;
         return 2;
     }
 
@@ -114,7 +117,7 @@ int main(int argc, char *argv[])
     Factory::SetName(name);
 
     string strPath = folderTape.string();
-    int pos = strPath.rfind('/', 1);
+    int pos = strPath.rfind("/");
     if(-1 != pos){
     	string uuid = strPath.substr(pos + 1, strPath.length() - 1);
         Factory::SetUuid(uuid);

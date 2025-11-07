@@ -117,6 +117,16 @@ int main(int argc, char *argv[])
     Factory::SetMetaFolder(folderMeta);
     Factory::SetCacheFolder(folderCache);
     Factory::SetTapeFolder(folderTape);
+    
+    // Extract UUID from tape folder path for service naming
+    string strPath = folderTape.string();
+    int pos = strPath.rfind("/");
+    if(-1 != pos){
+        string uuid = strPath.substr(pos + 1);
+        Factory::SetUuid(uuid);
+        Factory::SetService(uuid);
+    }
+    
 #ifdef MORE_TEST
     CreateLogger("/tmp/bdt-server");
 #endif
@@ -134,6 +144,10 @@ int main(int argc, char *argv[])
 
     auto_ptr<CacheMonitorServer> purge;
     purge.reset(new CacheMonitorServer());
+
+    // Create ServiceServer for FUSE Client connections
+    auto_ptr<ServiceServer> serviceServer;
+    serviceServer.reset(new ServiceServer());
 
     using namespace ltfs_management;
     // lock the libraries
@@ -291,6 +305,8 @@ int main(int argc, char *argv[])
     schedule.reset(NULL);
     LogDebug("Stopping TapeManagerProxyServer");
     tape.reset(NULL);
+    LogDebug("Stopping ServiceServer");
+    serviceServer.reset(NULL);
 
     return 0;
 }
