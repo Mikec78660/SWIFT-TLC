@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf8"?>
 <VSConf>
+	<!-- Database Configuration -->
+	<DatabaseHost>localhost</DatabaseHost>
+	<DatabasePort>3306</DatabasePort>
+	<DatabaseName>vsdb</DatabaseName>
+	<DatabaseUser>vsadmin</DatabaseUser>
+	<DatabasePassword>vsadmin123</DatabasePassword>
+	<DatabaseInitialPoolSize>5</DatabaseInitialPoolSize>
+	<DatabaseMaxPoolSize>20</DatabaseMaxPoolSize>
+	<DatabaseMinPoolSize>2</DatabaseMinPoolSize>
+	<DatabaseTimeout>30</DatabaseTimeout>
+	
+	<!-- Cache Configuration -->
+	<CachePurgeWaitTime>10</CachePurgeWaitTime>
+	
+	<!-- Existing Configuration -->
 	<CacheFreeMinSize>15G</CacheFreeMinSize>
 	<CacheFreeMaxSize>25G</CacheFreeMaxSize>
 	<CacheFreeMinPercent>20</CacheFreeMinPercent>

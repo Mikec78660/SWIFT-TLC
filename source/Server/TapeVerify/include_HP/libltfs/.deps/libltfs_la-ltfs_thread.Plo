@@ -1,0 +1,2 @@
+libltfs_la-ltfs_thread.lo: ltfs_thread.c /usr/include/stdc-predef.h
+/usr/include/stdc-predef.h:

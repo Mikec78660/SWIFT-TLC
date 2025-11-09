@@ -1,0 +1,39 @@
+# define target, sources, compiler, include and libraries
+TARGET := TapeVerifyTool
+CC = gcc
+C_SRCS := $(wildcard *.c)
+C_OBJS := ${C_SRCS:.c=.o}
+OBJS := $(C_OBJS)
+INCLUDE_DIRS := include_IBM/ include_IBM/sg_lib/
+LIBRARY_DIRS :=  lib_IBM/
+LIBRARIES := sgutils2 ltfs
+
+# make IBM build, enable optimization
+override CFLAGS +=  -O3 -Wall 
+
+# add path to include and library directories
+override CFLAGS += $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir))
+LDFLAGS += $(foreach librarydir,$(LIBRARY_DIRS),-Wl,-rpath,$(librarydir) -L$(librarydir))
+LDFLAGS += $(foreach library,$(LIBRARIES),-l$(library))
+
+# Add system library dependencies for Debian 13
+LDFLAGS += -licui18n -licuuc -licudata -lcurl -lssl -lcrypto
+LDFLAGS += -lnetsnmp -lnetsnmpmibs -lnetsnmpagent
+LDFLAGS += -lsensors
+LDFLAGS += -lfuse3
+
+.PHONY: all clean distclean
+
+all: $(TARGET)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
+
+clean:
+	@- $(RM) $(TARGET)
+	@- $(RM) $(OBJS)
+
+distclean: clean

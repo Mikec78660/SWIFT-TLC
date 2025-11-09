@@ -57,24 +57,25 @@ int main(int argc, char *argv[])
     fs::path folderMeta(fs::system_complete(fs::path(meta)));
     fs::path folderCache(fs::system_complete(fs::path(cache)));
     fs::path folderTarget(fs::system_complete(fs::path(target)));
-    if ( ! fs::is_directory(folderTape) ) {
+    
+    // Use standard filesystem check instead of FUSE filesystem check
+    // to avoid transport endpoint error before FUSE mount is established
+    struct stat st;
+    if (stat(folderTape.string().c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
         cerr << "$TapeFolder: " << tape
                 << " does not exist" << endl;
         return 2;
     }
-    if ( ! fs::is_directory(folderCache) ) {
+    if (stat(folderCache.string().c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
         cerr << "$CacheFolder: " << cache
                 << " does not exist" << endl;
         return 2;
     }
-    if ( ! fs::is_directory(folderMeta) ) {
+    if (stat(folderMeta.string().c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
         cerr << "$MetaFolder: " << meta
                 << " does not exist" << endl;
         return 2;
     }
-    // Use standard filesystem check instead of FUSE filesystem check
-    // to avoid transport endpoint error before FUSE mount is established
-    struct stat st;
     if (stat(folderTarget.string().c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
         cerr << "$TargetFolder: " << target
                 << " does not exist or is not a directory" << endl;

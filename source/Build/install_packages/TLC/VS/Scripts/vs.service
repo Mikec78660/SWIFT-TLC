@@ -9,24 +9,27 @@ Type=forking
 User=root
 Group=root
 ExecStartPre=/bin/bash -c 'if [ ! -f /etc/vs/vs_conf.xml ]; then echo "Configuration file /etc/vs/vs_conf.xml does not exist."; exit 6; fi'
-ExecStartPre=/bin/bash -c 'systemctl restart mariadb.service'
-ExecStartPre=/bin/bash -c 'modprobe fuse'
-ExecStartPre=/bin/bash -c 'modprobe lin_tape 2>/dev/null || true'
-ExecStartPre=/bin/bash -c 'export PATH=$PATH:/usr/local/bin/'
-ExecStart=/usr/VS/vfs/vfsserver /opt/VS/vsMounts /opt/VS/vsCache/meta /opt/VS/vsCache/diskCache -o allow_other,default_permissions
-ExecStop=/bin/bash -c 'if [ -f /var/run/vfsserver.pid ]; then kill -n TERM $(cat /var/run/vfsserver.pid) 2>/dev/null || true; fi'
-ExecStopPost=/bin/bash -c 'if [ -f /var/run/vfsserver.pid ]; then sleep 2; kill -9 $(cat /var/run/vfsserver.pid) 2>/dev/null || true; rm -f /var/run/vfsserver.pid; fi'
-PIDFile=/var/run/vfsserver.pid
+ExecStartPre=-/bin/bash -c 'systemctl is-active mariadb.service || systemctl start mariadb.service || true'
+ExecStartPre=-/bin/bash -c 'modprobe fuse || true'
+ExecStartPre=-/bin/bash -c 'modprobe lin_tape 2>/dev/null || true'
+ExecStartPre=-/bin/bash -c 'export PATH=$PATH:/usr/local/bin/ || true'
+ExecStart=/usr/VS/vfs/vfsserver /srv/node/vsnode /opt/VS/vsCache/meta /opt/VS/vsCache/diskCache -o allow_other,default_permissions
+ExecStop=-/bin/bash -c 'if [ -f /run/vfsserver.pid ]; then kill -n TERM $(cat /run/vfsserver.pid) 2>/dev/null || true; fi'
+ExecStopPost=-/bin/bash -c 'if [ -f /run/vfsserver.pid ]; then sleep 2; kill -9 $(cat /run/vfsserver.pid) 2>/dev/null || true; rm -f /run/vfsserver.pid; fi'
+PIDFile=/run/vfsserver.pid
 Restart=on-failure
 RestartSec=10
+# Add memory limit to prevent std::bad_alloc
+MemoryMax=1G
+MemorySwapMax=0
 
 # Watchdog management
-ExecStartPost=/bin/bash -c 'sed -i "s%^#\*/1 \* \* \* \* root sh /usr/VS/scripts/watchdog%*/1 * * * * root sh /usr/VS/scripts/watchdog%" /etc/crontab'
-ExecStopPost=/bin/bash -c 'sed -i "s%^.*/usr/VS/scripts/watchdog%#*/1 * * * * root sh /usr/VS/scripts/watchdog%" /etc/crontab'
+ExecStartPost=-/bin/bash -c 'sed -i "s|^#\*/1 \* \* \* \* root sh /usr/VS/scripts/watchdog|\*/1 * * * * root sh /usr/VS/scripts/watchdog|" /etc/crontab || true'
+ExecStopPost=-/bin/bash -c 'sed -i "s|^.*/usr/VS/scripts/watchdog|#\*/1 * * * * root sh /usr/VS/scripts/watchdog|" /etc/crontab || true'
 
 # Cache cleanup
-ExecStopPost=/bin/bash -c 'rm -rf /tmp/suds/* 2>/dev/null || true'
-ExecStopPost=/bin/bash -c 'rm -rf /tmp/.socket.vs.* 2>/dev/null || true'
+ExecStopPost=-/bin/bash -c 'rm -rf /tmp/suds/* 2>/dev/null || true'
+ExecStopPost=-/bin/bash -c 'rm -rf /tmp/.socket.vs.* 2>/dev/null || true'
 
 # Allow time for graceful shutdown
 TimeoutStopSec=300

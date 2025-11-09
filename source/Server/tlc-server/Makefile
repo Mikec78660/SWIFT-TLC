@@ -1,4 +1,4 @@
-all: vfsserver vfsclient vfsserver-simulator vfsclient-simulator lfs_tool library_tool
+all: vfsserver vfsclient lfs_tool library_tool
 
 FUSE_SOURCES = FuseBase.cpp FuseCallback.cpp
 FUSE_OBJECTS_DEBUG = $(patsubst %.cpp,debug/%.o,$(FUSE_SOURCES))
@@ -88,19 +88,19 @@ TINY_XML_OBJECTS_SIMULATOR = $(patsubst %.cpp,simulator/%.o,$(TINY_XML_SOURCES))
 UTIILITY_SOURCES = $(shell echo utility/*.cpp)
 UTIILITY_OBJECTS_DEBUG = $(patsubst %.cpp,debug/%.o,$(UTIILITY_SOURCES))
 
-CPPFLAGS = -DWITH_OPENSSL -D_FILE_OFFSET_BITS=64 -DBOOST_REGEX_NO_EXTERNAL_TEMPLATES -DBOOST_TIMER_ENABLE_DEPRECATED -Wall -Wno-unused-local-typedefs -I /root/log4cplus/include -I /root/mysql-connector/include -I /usr/include/python3.13
-LDFLAGS = -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lcrypto -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system  -lssl -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lxmlrpc_util++ -lmysqlcppconn -lfuse -lpython3.13
-LIC_LDFLAGS = -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lxmlrpc_util++ -lfuse
+CPPFLAGS = -DWITH_OPENSSL -D_FILE_OFFSET_BITS=64 -DBOOST_REGEX_NO_EXTERNAL_TEMPLATES -DBOOST_TIMER_ENABLE_DEPRECATED -Wall -Wno-unused-local-typedefs -I /usr/include/log4cplus -I /usr/include/python3.13
+LDFLAGS = -Wl,-rpath /usr/lib/x86_64-linux-gnu -L /usr/lib/x86_64-linux-gnu -pthread -lcrypto -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system  -lssl -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lxmlrpc_util++ -lmysqlcppconn -lfuse -lpython3.13
+LIC_LDFLAGS = -Wl,-rpath /usr/lib/x86_64-linux-gnu -L /usr/lib/x86_64-linux-gnu -pthread -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lboost_system -llog4cplus -lxmlrpc -lxmlrpc_util -lxmlrpc_server -lxmlrpc_packetsocket -lxmlrpc++ -lxmlrpc_server++ -lxmlrpc_server_pstream++ -lxmlrpc_client -lxmlrpc_client++ -lxmlrpc_util++ -lfuse
 
 
 bdt-redirect: $(REDIRECT_OBJECTS_RELEASE) $(FUSE_OBJECTS_RELEASE)
-	g++ -o $@ $^ -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lfuse -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams
+	g++ -o $@ $^ -Wl,-rpath /usr/lib/x86_64-linux-gnu -L /usr/lib/x86_64-linux-gnu -pthread -lfuse -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams
 
 bdt-redirect-debug: $(REDIRECT_OBJECTS_DEBUG) $(FUSE_OBJECTS_DEBUG)
-	g++ -o $@ $^ -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread -lfuse -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams
+	g++ -o $@ $^ -Wl,-rpath /usr/lib/x86_64-linux-gnu -L /usr/lib/x86_64-linux-gnu -pthread -lfuse -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams
 
 bdt-redirect-simulator: $(REDIRECT_OBJECTS_SIMULATOR) $(FUSE_OBJECTS_SIMULATOR)
-	g++ -o $@ $^ -Wl,-rpath /usr/VS/lib -L /usr/VS/lib -pthread  -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lfuse
+	g++ -o $@ $^ -Wl,-rpath /usr/lib/x86_64-linux-gnu -L /usr/lib/x86_64-linux-gnu -pthread  -lrt -ldl -lboost_filesystem -lboost_thread -lboost_date_time -lboost_regex -lboost_iostreams -lfuse
 
 debug/libbdtltfs_tape.a: $(TAPE_OBJECTS_DEBUG)
 	ar rcs $@ $^

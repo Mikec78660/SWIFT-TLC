@@ -1,0 +1,2 @@
+/usr/bin/ar qc libVSConnectionPool.a CMakeFiles/VSConnectionPool.dir/MySQLConnection.cpp.o CMakeFiles/VSConnectionPool.dir/ConnectionPool.cpp.o
+/usr/bin/ranlib libVSConnectionPool.a

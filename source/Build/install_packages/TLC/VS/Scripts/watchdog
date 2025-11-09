@@ -14,27 +14,32 @@ FULL_PATH_VFS="/usr/VS/vfs/${VFS_BIN_BASENAME}"
 	;;
 	1)
 	    echo "`date +%D-%H:%M:%S`: Service dead, restarting it." >> /var/log/vs/watchdog.log
-	    /etc/init.d/vs restart >> /var/log/vs/watchdog.log 2>&1
+	    systemctl restart vs.service >> /var/log/vs/watchdog.log 2>&1
 	;;
 	*)
 	    echo "`date +%D-%H:%M:%S`: Service status unknown(${RETVAL}), restarting it." >> /var/log/vs/watchdog.log
-	    /etc/init.d/vs restart >> /var/log/vs/watchdog.log 2>&1
+	    systemctl restart vs.service >> /var/log/vs/watchdog.log 2>&1
 	;;
     esac
     
-    # check if rsyncd service is running
-    systemctl status rsyncd.service  | grep "Active: active (running)"
-    RETVAL=$?
-    case ${RETVAL} in
-    0)
-    #Service running, do nothing...
-    ;;
-    1)
-        echo "`date +%D-%H:%M:%S`: rsyncd service dead, restarting it." >> /var/log/vs/watchdog.log
-        systemctl restart rsyncd.service >> /var/log/vs/watchdog.log 2>&1
-    ;;
-    *)
-        echo "`date +%D-%H:%M:%S`: rsyncd service status unknown(${RETVAL}), restarting it." >> /var/log/vs/watchdog.log
-        systemctl restart rsyncd.service >> /var/log/vs/watchdog.log 2>&1
-    ;;
-    esac
+    # check if rsync service is running
+    if systemctl list-unit-files --type=service --state=loaded | grep -q rsync.service; then
+        systemctl status rsync.service 2>/dev/null | grep "Active: active (running)"
+        RETVAL=$?
+        case ${RETVAL} in
+        0)
+        #Service running, do nothing...
+        ;;
+        1)
+            echo "`date +%D-%H:%M:%S`: rsync service dead, restarting it." >> /var/log/vs/watchdog.log
+            systemctl restart rsync.service >> /var/log/vs/watchdog.log 2>&1 || true
+        ;;
+        *)
+            echo "`date +%D-%H:%M:%S`: rsync service status unknown(${RETVAL}), restarting it." >> /var/log/vs/watchdog.log
+            systemctl restart rsync.service >> /var/log/vs/watchdog.log 2>&1 || true
+        ;;
+        esac
+    else
+        # rsync service not installed, skip this check
+        :
+    fi
